@@ -10,5 +10,5 @@ def machine_learnig(X,Y):
     y_pred = model.predict(X_test)
 
     print("Точность:",accuracy_score(y_test,y_pred))
-    print("Конфуций",confusion_matrix(y_test,y_pred))
+    print(confusion_matrix(y_test,y_pred))
     print(classification_report(y_test,y_pred))

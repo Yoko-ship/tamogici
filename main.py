@@ -3,32 +3,42 @@ import pandas as pd
 from graph import draw_graph,draw_histogram,draw_scatter_plot
 from regression import machine_learnig
 
-df = pd.read_csv("tmdb_5000_movies.csv")
-budget = df.loc[df['budget'] > 10000,'budget']
-title = df.loc[df['budget'] > 10000,'title']
-release_date = df.loc[df['budget'] > 10000,'release_date']
-revenue = df.loc[df['budget'] > 10000,'revenue']
-vote_average = df.loc[df['budget'] > 10000,'vote_average']
-revenue_logarifmed = np.log1p(df["revenue"])
-budget_logarifmed = np.log1p(df["budget"])
-hit = df.loc[((df['revenue'] - df['budget']) / df['budget']) > 3,'title']
-datetime_series = pd.Series(pd.to_datetime(release_date))
-year = pd.Series(datetime_series.dt.year.unique())
-average_rating = df.groupby(year)['vote_average'].transform("mean")
-average_rating_dropped = average_rating.dropna()
-average_frame = pd.DataFrame({"Год":year,"Средний рейтинг":average_rating_dropped}).sort_values("Год")
-month = datetime_series.dt.month_name()
-dframe = pd.DataFrame({"Бюджет":budget,"Названия":title,"Дата выхода":release_date,"Доход":revenue,"Рейтинг":vote_average,"Хит":hit})
-filled_frame = dframe.fillna("")
-votes = df.loc[df['budget'] > 10000,'vote_average']
 
-X = df[['budget','vote_average']]
-Y = (df['revenue'] > df['budget']).astype(int)
 
-draw_graph(average_frame)
-draw_histogram(votes)
-draw_scatter_plot(budget,vote_average)
-machine_learnig(X,Y)
+def load_and_clean(path):
+    df = pd.read_csv(path)
+    df = df[df['budget'] > 10000].copy()
+    df['release_date'] = pd.to_datetime(df['release_date'],errors='coerce')
+    df['year'] = df['release_date'].dt.year
+    df['month'] = df['release_date'].dt.month
+    return df
+
+
+def add_features(df):
+    df['budget_log'] = np.log1p(df['budget'])
+    df['revenue_log'] = np.log1p(df['revenue'])
+    df['success'] = (df['revenue'] > df['budget']).astype(int)
+    average_rating = df.groupby("year")['vote_average'].mean().reset_index()
+    average_rating.columns = ['Год','Средний рейтинг']
+
+    return df,average_rating
+
+
+def main():
+    df = load_and_clean('tmdb_5000_movies.csv')
+    df,average_rating = add_features(df)
+    draw_graph(average_rating)
+    draw_histogram(df['vote_average'])
+    draw_scatter_plot(df['budget'],df['vote_average'])
+
+    X = df[['budget_log','vote_average']]
+    Y = df['success']
+    machine_learnig(X,Y)
+
+
+if __name__ == "__main__":
+    main()
+
 
 
 
