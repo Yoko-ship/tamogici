@@ -1,0 +1,66 @@
+.container{
+    display: flex;
+    justify-content: center;
+}
+
+.main-container{
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+.grids{
+    display: grid;
+    grid-template-columns: repeat(4,2fr);
+    gap: 2rem;
+    margin: 1rem 0;
+}
+
+.grids button{
+    border: none;
+    padding: 1rem;
+    border-radius: 40%;
+    background-color: #9A92F4;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.main-stats{
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+@keyframes chew {
+    0%,100% {transform: scale(1);}
+    50% {transform: scale(1.1);}
+}
+@keyframes sleeping{
+    0%,100% {transform: translateY(0) rotate(0deg);}
+    50% {transform: translateY(5px) rotate(-2deg);}
+}
+@keyframes play{
+    0%,100% {transform: translateX(0);}
+    25% {transform: translateX(10px);}
+    75% {transform: translateX(-10px);}
+}
+
+@keyframes happiness{
+    0%,100% {transform: scale(1);}
+    50% {transform: scale(1.15);}
+}
+
+.animate-eating{
+    animation: chew 0.4s ease-in-out infinite;
+}
+.animate-sleeping{
+    animation: sleeping 0.5s ease-in-out infinite;
+}
+.animate-play{
+    animation: play 0.5s ease-in-out infinite;
+}
+.animate-happiness{
+    animation: happiness 0.3s ease-in-out infinite;
+}
