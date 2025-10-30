@@ -68,6 +68,8 @@ function Pets() {
 
   const chooseHanlder = (id:number) =>{
     dispatch(getId(id))
+    const stringedId = String(id)
+    localStorage.setItem('id',stringedId)
     navigate('/')
 
   }

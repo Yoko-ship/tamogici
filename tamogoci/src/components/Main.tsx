@@ -52,86 +52,113 @@ interface Data {
 }
 
 function Main() {
-  const id = useAppSelect((state) => state.id.id);
+  const [id, setId] = useState(NaN);
   const [data, setData] = useState<Data[]>();
-  const [petAction,setPetAction] = useState('');
+  const [petAction, setPetAction] = useState("");
+
+  useEffect(() => {
+    const id = Number(localStorage.getItem("id"));
+    setId(id);
+  }, []);
 
   useEffect(() => {
     const updatedElement = pets.filter((info) => info.id === id);
     setData(updatedElement);
   }, [id]);
 
+  useEffect(() => {
+    if (petAction) {
+      const timer = setTimeout(() => setPetAction(""), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [petAction]);
 
-  useEffect(() =>{
-    if(petAction){
-      const timer = setTimeout(() => setPetAction(''),2000)
-      return ()=> clearTimeout(timer)
+  const handler = (type: string) => {
+    if (type === "health") {
+      if (data![0].stats.health < 90) {
+        const updatedElement = data?.map((obj) => ({
+          ...obj,
+          stats: {
+            ...obj.stats,
+            health: obj.stats.health + 1,
+          },
+        }));
+        setData(updatedElement);
+        const chewSound = new Audio(
+          "src\\assets\\eating-sound-effect-36186.mp3"
+        );
+        chewSound.play();
+        setPetAction("eating");
+      }
     }
-  },[petAction])
+    if (type === "energy") {
+      if (data![0].stats.energy < 95) {
+        const updatedElement = data?.map((obj) => ({
+          ...obj,
+          stats: {
+            ...obj.stats,
+            energy: obj.stats.energy + 1,
+          },
+        }));
+        setData(updatedElement);
+        const sleepSound = new Audio("src\\assets\\yawn-sfx-417708.mp3");
+        sleepSound.play();
+        setPetAction("sleeping");
+      }
+    }
+    if (type === "happiness") {
+      if (data![0].stats.happiness < 94) {
+        const updatedElement = data?.map((obj) => ({
+          ...obj,
+          stats: {
+            ...obj.stats,
+            happiness: obj.stats.happiness + 1,
+          },
+        }));
+        setData(updatedElement);
+        const happinnessSound = new Audio(
+          "src\\assets\\shorttabbypurr-43723.mp3"
+        );
+        happinnessSound.play();
+        setPetAction("happiness");
+      }
+    }
+    if (type === "speed") {
+      if (data![0].stats.speed < 90) {
+        const updatedElement = data?.map((obj) => ({
+          ...obj,
+          stats: {
+            ...obj.stats,
+            speed: obj.stats.speed + 1,
+          },
+        }));
+        setData(updatedElement);
+        const speedSound = new Audio(
+          "src\\assets\\bar-increase-cartoon-funny-jump-384919.mp3"
+        );
+        speedSound.play();
+        setPetAction("play");
+      }
+    }
+  };
 
-  const handler = (type:string) =>{
-    if (type === "health"){
-      if(data![0].stats.health < 90){
-        const updatedElement = data?.map(obj => ({
+  useEffect(() => {
+    if (data) {
+      const interval = setInterval(() => {
+        const res = data?.map((obj) => ({
           ...obj,
-          stats:{
-            ...obj.stats,
-            health: obj.stats.health + 1
-          }
-        }))  
-        setData(updatedElement)
-        const chewSound = new Audio("src\\assets\\eating-sound-effect-36186.mp3")
-        chewSound.play()
-        setPetAction("eating")
-      }
+          stats: {
+            health: obj.stats.health - 2,
+            energy: obj.stats.energy - 3,
+            happiness: obj.stats.happiness - 1,
+            speed: obj.stats.speed - 1,
+          },
+        }));
+        setData(res)
+      }, 30000);
+      return () => clearInterval(interval);
     }
-    if(type === 'energy'){
-      if(data![0].stats.energy < 95){
-        const updatedElement = data?.map(obj => ({
-          ...obj,
-          stats:{
-            ...obj.stats,
-            energy: obj.stats.energy + 1
-          }
-        }))  
-        setData(updatedElement)
-        const sleepSound = new Audio("src\\assets\\yawn-sfx-417708.mp3")
-        sleepSound.play()
-        setPetAction("sleeping")
-      }
-    }
-    if(type === 'happiness'){
-      if(data![0].stats.happiness < 94){
-        const updatedElement = data?.map(obj => ({
-          ...obj,
-          stats:{
-            ...obj.stats,
-            happiness: obj.stats.happiness + 1
-          }
-        }))  
-        setData(updatedElement)
-        const happinnessSound = new Audio("src\\assets\\shorttabbypurr-43723.mp3")
-        happinnessSound.play()
-        setPetAction("happiness")
-      }
-    }
-    if(type === "speed"){
-      if(data![0].stats.speed < 90){
-        const updatedElement = data?.map(obj => ({
-          ...obj,
-          stats:{
-            ...obj.stats,
-            speed: obj.stats.speed + 1
-          }
-        }))  
-        setData(updatedElement)
-        const speedSound = new Audio("src\\assets\\bar-increase-cartoon-funny-jump-384919.mp3")
-        speedSound.play()
-        setPetAction('play')
-      }
-    }
-
-  }
+  });
 
   return (
     <>
@@ -141,7 +168,12 @@ function Main() {
             {data?.map((pet) => (
               <section className="pets-information" key={pet.id}>
                 <div className="img">
-                  <img src={pet.image} className={`pet-image ${petAction ? `animate-${petAction}` : ""}`}></img>
+                  <img
+                    src={pet.image}
+                    className={`pet-image ${
+                      petAction ? `animate-${petAction}` : ""
+                    }`}
+                  ></img>
                 </div>
                 <div className="information">
                   <h2>{pet.name}</h2>
@@ -151,10 +183,22 @@ function Main() {
             ))}
 
             <div className="grids">
-              <Button image="src\\assets\\dish.png" hanlder={() => handler("health")}/>
-              <Button image="src\\assets\\moon.png" hanlder={() => handler("energy")}/>
-              <Button image="src\\assets\\console.png" hanlder={() => handler('speed')}/>
-              <Button image="src\assets\caress.png" hanlder={() => handler("happiness")}/>
+              <Button
+                image="src\\assets\\dish.png"
+                hanlder={() => handler("health")}
+              />
+              <Button
+                image="src\\assets\\moon.png"
+                hanlder={() => handler("energy")}
+              />
+              <Button
+                image="src\\assets\\console.png"
+                hanlder={() => handler("speed")}
+              />
+              <Button
+                image="src\assets\caress.png"
+                hanlder={() => handler("happiness")}
+              />
             </div>
           </div>
           <div className="stats main-stats">
@@ -166,9 +210,21 @@ function Main() {
                     image="src\assets\cardiogram.png"
                     name="Health"
                   ></Stats>
-                  <Stats value={stats.stats.happiness} name="Happiness" image="src\assets\smiling-face.png"></Stats>
-                  <Stats value={stats.stats.energy} name="Energy" image="src\assets\flash.png"></Stats>
-                  <Stats value={stats.stats.speed} name="Speed" image="src\assets\speed.png"></Stats>
+                  <Stats
+                    value={stats.stats.happiness}
+                    name="Happiness"
+                    image="src\assets\smiling-face.png"
+                  ></Stats>
+                  <Stats
+                    value={stats.stats.energy}
+                    name="Energy"
+                    image="src\assets\flash.png"
+                  ></Stats>
+                  <Stats
+                    value={stats.stats.speed}
+                    name="Speed"
+                    image="src\assets\speed.png"
+                  ></Stats>
                 </div>
               ))}
             </section>
